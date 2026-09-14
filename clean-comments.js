@@ -1,33 +1,68 @@
-const fs = require('fs');
-const path = require('path');
+let source = '';
 
-// Carpetas que queremos escanear automáticamente
-const directoriesToClean = [
-    path.resolve(__dirname, 'tests'),
-    path.resolve(__dirname, 'pages'),
-    path.resolve(__dirname, 'fixtures')
-];
+function removeComments(input) {
+    let output = '';
+    let state = 'code';
 
-function removeCommentsFromFile(filePath) {
-    const content = fs.readFileSync(filePath, 'utf8');
-    // Esta expresión regular remueve comentarios de tipo // y de tipo /* */
-    const cleanedContent = content.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1');
-    fs.writeFileSync(filePath, cleanedContent, 'utf8');
-}
+    for (let index = 0; index < input.length; index += 1) {
+        const current = input[index];
+        const next = input[index + 1];
 
-function scanAndClean(dir) {
-    if (!fs.existsSync(dir)) return;
-    const files = fs.readdirSync(dir);
-    files.forEach(file => {
-        const fullPath = path.join(dir, file);
-        if (fs.statSync(fullPath).isDirectory()) {
-            scanAndClean(fullPath);
-        } else if (file.endsWith('.ts') || file.endsWith('.tsx')) {
-            removeCommentsFromFile(fullPath);
+        if (state === 'line-comment') {
+            if (current === '\n') {
+                output += current;
+                state = 'code';
+            }
+            continue;
         }
-    });
+
+        if (state === 'block-comment') {
+            if (current === '*' && next === '/') {
+                index += 1;
+                state = 'code';
+            } else if (current === '\n') {
+                output += current;
+            }
+            continue;
+        }
+
+        if (state === 'single-quoted' || state === 'double-quoted' || state === 'template') {
+            output += current;
+            if (current === '\\') {
+                output += next || '';
+                index += 1;
+            } else if (
+                (state === 'single-quoted' && current === "'") ||
+                (state === 'double-quoted' && current === '"') ||
+                (state === 'template' && current === '`')
+            ) {
+                state = 'code';
+            }
+            continue;
+        }
+
+        if (current === '/' && next === '/') {
+            index += 1;
+            state = 'line-comment';
+        } else if (current === '/' && next === '*') {
+            index += 1;
+            state = 'block-comment';
+        } else {
+            output += current;
+            if (current === "'") state = 'single-quoted';
+            if (current === '"') state = 'double-quoted';
+            if (current === '`') state = 'template';
+        }
+    }
+
+    return output;
 }
 
-// Ejecutar la limpieza
-directoriesToClean.forEach(dir => scanAndClean(dir));
-console.log('🧹 SUCCESS: All internal comments have been stripped before commit.');
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', (chunk) => {
+    source += chunk;
+});
+
+process.stdin.on('end', () => {
+    process.stdout.write(removeComments(source));
+});

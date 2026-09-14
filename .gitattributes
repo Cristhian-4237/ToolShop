@@ -1,0 +1,9 @@
+pages/**/*.ts filter=no-comments
+pages/**/*.tsx filter=no-comments
+fixtures/**/*.ts filter=no-comments
+fixtures/**/*.tsx filter=no-comments
+tests/**/*.ts filter=no-comments
+tests/**/*.tsx filter=no-comments
+data/**/*.ts filter=no-comments
+data/**/*.tsx filter=no-comments
+playwright.config.ts filter=no-comments

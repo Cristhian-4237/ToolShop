@@ -4,7 +4,7 @@ import { ENV } from '../../data/environment';
 test.describe('Toolshop REST API - Core Backend Validation Suite', () => {
 
     test('Should successfully authenticate admin user via API POST request', async ({ request }) => {
-        // CORRECCIÓN: Estructura idéntica con headers en minúsculas para coincidencia estricta
+        
         const response = await request.post(`${ENV.apiUrl}/users/login`, {
             headers: {
                 'accept': 'application/json',

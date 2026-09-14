@@ -3,7 +3,7 @@ import { NavbarComponent } from './components/NavBarComponent';
 
 export abstract class BasePage {
     protected readonly page: Page;
-    // 🎯 Inyección automática: Todas las páginas ganan el menú superior sin programarlo en su constructor
+    
     public readonly navbar: NavbarComponent;
 
     constructor(page: Page) {

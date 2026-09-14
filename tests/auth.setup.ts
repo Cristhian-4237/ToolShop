@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 setup('Global Admin Authentication', async ({ request }) => {
-  // Imprimir traza inicial del proceso de autenticación
+  
   console.log(`[AUTH] Initiating authentication request to: ${ENV.apiUrl}/users/login`);
 
   const response = await request.post(`${ENV.apiUrl}/users/login`, {
@@ -18,10 +18,10 @@ setup('Global Admin Authentication', async ({ request }) => {
     },
   });
 
-  // 1. Validar que el código de estado de la respuesta de red sea exitoso
+  
   expect(response.ok(), `[AUTH ERROR] HTTP request failed with status: ${response.status()}`).toBeTruthy();
 
-  // 2. Prevenir errores de parseo de JSON validando estrictamente la cabecera Content-Type
+  
   const contentType = response.headers()['content-type'] || '';
   if (!contentType.includes('application/json')) {
     const rawBody = await response.text();
@@ -32,16 +32,16 @@ setup('Global Admin Authentication', async ({ request }) => {
     );
   }
 
-  // 3. Parseo seguro garantizado tras la verificación de la cabecera
+  
   const responseBody = await response.json();
   const jwtToken = responseBody.access_token;
 
   expect(jwtToken, '[AUTH ERROR] Authentication payload is missing the access_token property.').toBeDefined();
 
-  // 4. Compilar el artefacto de estado de almacenamiento para la ejecución paralela
+  
   const authStatePath = path.resolve('.auth/admin-state.json');
   
-  // Es crítico mapear el token al origen del Frontend (baseUrl) para que la SPA lo reconozca
+  
   const storageState = {
     cookies: [],
     origins: [
@@ -57,7 +57,7 @@ setup('Global Admin Authentication', async ({ request }) => {
     ],
   };
 
-  // Asegurar que el directorio exista y escribir el archivo de estado de autenticación
+  
   fs.mkdirSync(path.dirname(authStatePath), { recursive: true });
   fs.writeFileSync(authStatePath, JSON.stringify(storageState, null, 2));
   

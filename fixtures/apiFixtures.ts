@@ -16,21 +16,21 @@ export interface IProductBackendResponse {
   readonly name: string;
 }
 
-/**
- * Fixture de Infraestructura de API.
- * Encapsula las operaciones del backend aislando los contratos HTTP del Spec.
- */
+
+
+
+
 export const apiFixtures = base.extend<{ 
   apiCartController: { 
     getLiveProductIdByName: (productName: string) => Promise<string>;
-    addProductViaApi: (productId: string, quantity: number, cartId?: string) => Promise<string>; // 🎯 'cartId' opcional para reutilizar el método
+    addProductViaApi: (productId: string, quantity: number, cartId?: string) => Promise<string>; 
   } 
 }>({
   apiCartController: async ({ request }, use) => {
     const controller = {
-      /**
-       * Interroga al catálogo vivo del backend para obtener el ULID real de forma dinámica.
-       */
+      
+
+
       getLiveProductIdByName: async (productName: string): Promise<string> => {
         const response = await request.get(`${ENV.apiUrl}/products`);
         if (!response.ok()) {
@@ -50,14 +50,14 @@ export const apiFixtures = base.extend<{
         return targetProduct.id;
       },
 
-      /**
-       * Método Unificado Senior para la gestión de Carritos en Backend.
-       * Si se omite 'cartId' crea un carrito nuevo. Si se envía, le añade más unidades.
-       */
+      
+
+
+
       addProductViaApi: async (productId: string, quantity: number, cartId?: string): Promise<string> => {
         let activeCartId = cartId;
 
-        // Si no nos pasaron un carrito previo, creamos uno limpio desde cero
+        
         if (!activeCartId) {
           const cartResponse = await request.post(`${ENV.apiUrl}/carts`, {
             headers: { 'accept': 'application/json' }
@@ -71,7 +71,7 @@ export const apiFixtures = base.extend<{
           activeCartId = cartData.id;
         }
 
-        // Ejecutamos el POST unificado a la raíz que sí reconoce el servidor de Toolshop
+        
         const response = await request.post(`${ENV.apiUrl}/carts`, {
           headers: { 'accept': 'application/json' },
           data: {
